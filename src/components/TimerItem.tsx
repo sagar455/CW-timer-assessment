@@ -9,6 +9,7 @@ import { TimerAudio } from "../utils/audio";
 import { TimerControls } from "./TimerControls";
 import { TimerProgress } from "./TimerProgress";
 import { CustomButton } from "./CustomButton";
+import { ConfirmationModal } from './ConfirmationModal';
 
 interface TimerItemProps {
   timer: Timer;
@@ -19,7 +20,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const timerAudio = TimerAudio.getInstance();
   const hasEndedRef = useRef(false);
-
+const [confirm,setConfirmationModal] = useState(false)
   const handleRestart = () => {
     hasEndedRef.current = false;
     restartTimer(timer.id);
@@ -28,6 +29,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
   const handleDelete = () => {
     timerAudio.stop();
     deleteTimer(timer.id);
+    handleConfirmationModal();
   };
 
   const handleToggle = () => {
@@ -37,6 +39,8 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
     toggleTimer(timer.id);
     startGlobalTimer();
   };
+
+  const handleConfirmationModal = () => setConfirmationModal(prev=>!prev);
 
   return (
     <>
@@ -50,9 +54,9 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
         
         <div className="relative">
           <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-xl font-semibold text-gray-800">{timer.title}</h3>
-              <p className="text-gray-600 mt-1">{timer.description}</p>
+            <div className="w-[50%]">
+              <h3 className="text-xl font-semibold text-gray-800 !truncate">{timer.title}</h3>
+              <p className="text-gray-600 mt-1 !truncate">{timer.description}</p>
             </div>
             <div className="flex gap-2">
               <CustomButton
@@ -68,7 +72,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
                 icons={{ icon: RotateCcw, onlyIcon: true }}
               />
               <CustomButton
-                onClick={handleDelete}
+                onClick={handleConfirmationModal}
                 className="hover:bg-red-50 text-red-500"
                 title="Delete Timer"
                 icons={{ icon: Trash2, onlyIcon: true }}
@@ -94,7 +98,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
           </div>
         </div>
       </div>
-
+      {confirm && <ConfirmationModal timer={timer} onClose={handleConfirmationModal} handleDelete={handleDelete}/>}
       {isEditModalOpen && <TimerModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} timer={timer} />}
     </>
   );
