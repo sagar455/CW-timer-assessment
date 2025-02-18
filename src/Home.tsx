@@ -23,9 +23,6 @@ function Home() {
           icons={{icon:Plus ,position:"prefix"}}
           text={"Add Timer"}
           />
-            {/* <Plus className="w-5 h-5" />
-            Add Timer
-          </CustomButton> */}
         </div>
         <TimerList />
         {isModalOpen && (

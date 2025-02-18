@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState, useRef } from "react";
 import { Trash2, RotateCcw, Pencil } from "lucide-react";
 import { Timer } from "../types/timer";
 import { formatTime } from "../utils/time";
@@ -15,34 +15,10 @@ interface TimerItemProps {
 }
 
 export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
-  const { toggleTimer, deleteTimer, updateTimer, restartTimer } = useTimerStore();
+  const { toggleTimer, deleteTimer, updateTimers, restartTimer, startGlobalTimer } = useTimerStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const intervalRef = useRef<number | null>(null);
   const timerAudio = TimerAudio.getInstance();
   const hasEndedRef = useRef(false);
-
-  useEffect(() => {
-    if (timer.isRunning) {
-      intervalRef.current = window.setInterval(() => {
-        updateTimer(timer.id);
-        
-        if (timer.remainingTime <= 1 && !hasEndedRef.current) {
-          hasEndedRef.current = true;
-          timerAudio.play().catch(console.error);
-          
-          toast.success(`Timer "${timer.title}" has ended!`, {
-            duration: 5000,
-            action: {
-              label: 'Dismiss',
-              onClick: timerAudio.stop,
-            },
-          });
-        }
-      }, 1000);
-    }
-
-    return () => clearInterval(intervalRef.current!);
-  }, [timer.isRunning, timer.id, timer.remainingTime, timer.title, timerAudio, updateTimer]);
 
   const handleRestart = () => {
     hasEndedRef.current = false;
@@ -59,6 +35,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
       hasEndedRef.current = false;
     }
     toggleTimer(timer.id);
+    startGlobalTimer();
   };
 
   return (
@@ -67,12 +44,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
         <div className="absolute inset-0 w-full h-full -z-10 opacity-5">
           <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="2" />
-            <path
-              d="M50 20V50L70 70"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
+            <path d="M50 20V50L70 70" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </div>
         
@@ -123,9 +95,7 @@ export const TimerItem: React.FC<TimerItemProps> = ({ timer }) => {
         </div>
       </div>
 
-      {isEditModalOpen && (
-        <TimerModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} timer={timer} />
-      )}
+      {isEditModalOpen && <TimerModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} timer={timer} />}
     </>
   );
 };
