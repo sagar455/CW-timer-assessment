@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { X, Clock } from 'lucide-react';
 import { useTimerStore } from '../store/useTimerStore';
 import { validateTimerForm } from '../utils/validation';
+import { capitalize, standardTimerUnitsAndData } from '../utils/helper';
 
-interface AddTimerModalProps {
+interface TimerModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose }) => {
+const INITIAL_TIMER = {hours:0,minutes:0,seconds:0};  // Initial state for the  timer
+
+export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
-  const [seconds, setSeconds] = useState(0);
+  const [timerData, setTimerData] = useState(INITIAL_TIMER)  // maintaining one single state for hours, minutes & seconds
   const [touched, setTouched] = useState({
     title: false,
     hours: false,
@@ -27,6 +28,8 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const {hours, minutes, seconds} = timerData ;
     
     if (!validateTimerForm({ title, description, hours, minutes, seconds })) {
       return;
@@ -45,9 +48,7 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
     onClose();
     setTitle('');
     setDescription('');
-    setHours(0);
-    setMinutes(0);
-    setSeconds(0);
+    setTimerData(INITIAL_TIMER)
     setTouched({
       title: false,
       hours: false,
@@ -66,8 +67,10 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
     });
   };
 
-  const isTimeValid = hours > 0 || minutes > 0 || seconds > 0;
+  const isTimeValid = timerData.hours > 0 || timerData.minutes > 0 || timerData.seconds > 0;
   const isTitleValid = title.trim().length > 0 && title.length <= 50;
+
+  const handleTimerInput = (unit:string, maxValue:number, value:sting|null) =>  setTimerData(prev=>({...prev,[unit]:Math.min(maxValue, parseInt(value) || 0)}))
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -96,7 +99,7 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
               onChange={(e) => setTitle(e.target.value)}
               onBlur={() => setTouched({ ...touched, title: true })}
               maxLength={50}
-              className={` w-full p-1 rounded border border-gray-400  ${
+              className={` w-full p-1 rounded border border-gray-400 ${
                 touched.title && !isTitleValid
                   ? 'border-red-500'
                   : 'border-gray-300'
@@ -121,7 +124,7 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              className="w-full p-1 rounded border border-gray-400 "
+              className="w-full p-1 rounded border border-gray-400"
               placeholder="Enter timer description (optional)"
             />
           </div>
@@ -131,42 +134,20 @@ export const AddTimerModal: React.FC<AddTimerModalProps> = ({ isOpen, onClose })
               Duration <span className="text-red-500">*</span>
             </label>
             <div className="grid grid-cols-3 gap-4">
+              {Object.entries(standardTimerUnitsAndData).map(([unit,maxValue])=>(
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Hours</label>
+                <label className="block text-sm text-gray-600 mb-1">{capitalize(unit)}</label>
                 <input
                   type="number"
                   min="0"
-                  max="23"
-                  value={hours}
-                  onChange={(e) => setHours(Math.min(23, parseInt(e.target.value) || 0))}
-                  onBlur={() => setTouched({ ...touched, hours: true })}
-                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500  "
-                />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Minutes</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={minutes}
-                  onChange={(e) => setMinutes(Math.min(59, parseInt(e.target.value) || 0))}
-                  onBlur={() => setTouched({ ...touched, minutes: true })}
+                  max={maxValue}
+                  value={timerData[unit]}
+                  onChange={(e) =>handleTimerInput(unit, maxValue, e.target.value)}
+                  onBlur={() => setTouched({ ...touched, [unit]: true })}
                   className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 "
                 />
               </div>
-              <div>
-                <label className="block text-sm text-gray-600 mb-1">Seconds</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={seconds}
-                  onChange={(e) => setSeconds(Math.min(59, parseInt(e.target.value) || 0))}
-                  onBlur={() => setTouched({ ...touched, seconds: true })}
-                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500  border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
+              ))}
             </div>
             {touched.hours && touched.minutes && touched.seconds && !isTimeValid && (
               <p className="mt-2 text-sm text-red-500">
