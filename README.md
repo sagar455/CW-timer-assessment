@@ -1,5 +1,7 @@
 # Timer App Assignment
 
+hosted Link: https://timer-cw.netlify.app/
+
 Welcome to the Timer App Assignment! This project is designed to evaluate your skills in React development, focusing on **UI implementation**, **code quality**, **state management**, and **best practices**. The project uses **React**, **Vite**, **Tailwind CSS**, and **Vitest** for testing.
 
 ---
@@ -31,33 +33,45 @@ Your task is to improve and enhance an existing Timer App based on the following
 
    3.  **Snack Bar Behavior:**
       - When a timer is completed:
-        ✅ - A snack bar notification should display.
-        ❌- The notification sound should keep playing until the snack bar is dismissed.
+        - ✅A snack bar notification should display.
+        - ❌The notification sound should keep playing until the snack bar is dismissed.
 
    4. **Fix Snack Bar Console Error:**
-       ✅- Resolve the **console error** that occurs when the snack bar's **dismiss button** is clicked.
+       ✅Resolve the **console error** that occurs when the snack bar's **dismiss button** is clicked.
 
    5. **Extract Common Components:**
-       ✅- Extract the buttons in the **Add/Edit Timer Modal** as a **separate reusable component**.
-       ✅- Replace all instances of similar buttons in the app with this component.
+       - ✅Extract the buttons in the **Add/Edit Timer Modal** as a **separate reusable component**.
+       - ✅Replace all instances of similar buttons in the app with this component.
 
    6. **Consolidate Modal Code:**
-       ✅- Refactor the code to use a **single modal component** for both adding and editing timers, eliminating duplication.
+      -  ✅Refactor the code to use a **single modal component** for both adding and editing timers, eliminating duplication.
 
    7. **Validation Snack Bars:**
-       ✅- Currently, the **Submit button** is disabled when the form is invalid.
-       ✅- Show an **error snack bar** or notification when the form is submitted with invalid data.
+       - ✅Currently, the **Submit button** is disabled when the form is invalid.
+       - ✅Show an **error snack bar** or notification when the form is submitted with invalid data.
 
    8. **Responsive Snack Bar Placement:**
-      ✅ - For **desktop devices**: Display snack bars in the **top-right corner**.
-       ✅- For **mobile devices**: Display snack bars at the **bottom of the screen**.
+      - ✅For **desktop devices**: Display snack bars in the **top-right corner**.
+      - ✅For **mobile devices**: Display snack bars at the **bottom of the screen**.
 
    9. **Write Tests:**
-       ✅- Add **unit tests** for the `validation.ts` file to ensure all validation rules work as expected.
+       - ✅Add **unit tests** for the `validation.ts` file to ensure all validation rules work as expected.
       - Write **component tests** for reusable components like `TimerItem` and `ModalButtons`.
 
    10. **Timer Persistence:**
-        ✅- Use **localStorage** to persist timers across page refreshes.
+        - ✅Use **localStorage** to persist timers across page refreshes.
+
+---
+
+## **Enhancements Made**
+   - Added a confirmation modal at deletion.
+   - refactored code previously using 3 different states for maintaining the timer but now it is handled in one singe state.
+   - matched UI as per the given screenshots.
+   - removed disabling of button in add timer modal and added error messages in snackbar.
+   - consolidated the code for add and edit timer modal.
+   - no data loss on page refreshing saving it in localStorage.
+   - added one CustomButton component which is flexible to be used in nay types of buttons (buttons with text, icons, only icons, etc).
+   - fixed functionality of simultaneously working of timers.
 
 ---
 
@@ -84,13 +98,3 @@ Your task is to improve and enhance an existing Timer App based on the following
    ```
 
 ---
-
-## **Enhancements Made**
-   - Added a confirmation modal at deletion.
-   - refactored code previously using 3 different states for maintaining the timer but now it is handled in one singe state.
-   - matched UI as per the given screenshots.
-   - removed disabling of button in add timer modal and added error messages in snackbar.
-   - consolidated the code for add and edit timer modal.
-   - no data loss on page refreshing saving it in localStorage.
-   - added one CustomButton component which is flexible to be used in nay types of buttons (buttons with text, icons, only icons, etc).
-   - fixed functionality of simultaneously working of timers.
