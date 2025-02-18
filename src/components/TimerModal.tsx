@@ -1,17 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Clock } from 'lucide-react';
 import { useTimerStore } from '../store/useTimerStore';
 import { validateTimerForm } from '../utils/validation';
 import { capitalize, standardTimerUnitsAndData } from '../utils/helper';
+import { Timer } from '../types/timer';
+import {CustomButton} from './CustomButton';
 
 interface TimerModalProps {
   isOpen: boolean;
   onClose: () => void;
+  timer ?:Timer;
 }
 
 const INITIAL_TIMER = {hours:0,minutes:0,seconds:0};  // Initial state for the  timer
 
-export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) => {
+export const TimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose, timer }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [timerData, setTimerData] = useState(INITIAL_TIMER)  // maintaining one single state for hours, minutes & seconds
@@ -22,7 +25,27 @@ export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) =>
     seconds: false,
   });
   
-  const { addTimer } = useTimerStore();
+  const { addTimer, editTimer } = useTimerStore();
+
+  useEffect(() => {
+/*setting the data for editing if the modal is opened in edit state*/
+    if (isOpen && timer) {
+      const temp = {
+        hours: Math.floor(timer.duration / 3600),
+        minutes: Math.floor((timer.duration % 3600) / 60),
+        seconds: timer.duration % 60,
+      };
+      setTitle(timer.title);
+      setDescription(timer.description);
+      setTimerData({ ...temp });
+      setTouched({
+        title: false,
+        hours: false,
+        minutes: false,
+        seconds: false,
+      });
+    }
+  }, [isOpen, timer]);
 
   if (!isOpen) return null;
 
@@ -36,15 +59,24 @@ export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) =>
     }
 
     const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-    
-    addTimer({
-      title: title.trim(),
-      description: description.trim(),
-      duration: totalSeconds,
-      remainingTime: totalSeconds,
-      isRunning: false,
-    });
 
+    if(!timer){
+      addTimer({
+        title: title.trim(),
+        description: description.trim(),
+        duration: totalSeconds,
+        remainingTime: totalSeconds,
+        isRunning: false,
+      });
+    }
+    else{   
+      editTimer(timer.id, {
+        title: title.trim(),
+        description: description.trim(),
+        duration: totalSeconds,
+      });
+    }
+    
     onClose();
     setTitle('');
     setDescription('');
@@ -78,14 +110,13 @@ export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) =>
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-blue-600" />
-            <h2 className="text-xl font-semibold">Add New Timer</h2>
+            <h2 className="text-xl font-semibold">{!timer ? "Add New":"Edit"} Timer</h2>
           </div>
-          <button 
+          <CustomButton 
             onClick={handleClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+            className=" hover:bg-gray-100"
+            icons={{icon:X,onlyIcon:true}}
+          />
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -157,24 +188,19 @@ export const AddTimerModal: React.FC<TimerModalProps> = ({ isOpen, onClose }) =>
           </div>
           
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <button
+            <CustomButton
               type="button"
               onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100  hover:bg-gray-200"
+              text={'Cancel'}
+            />
+            <CustomButton
               type="submit"
-              className={`px-4 py-2 text-sm font-medium text-white rounded-md transition-colors ${
-                isTitleValid && isTimeValid
-                  ? 'bg-blue-600 hover:bg-blue-700'
-                  : 'bg-blue-400 cursor-not-allowed'
-              }`}
-              disabled={!isTitleValid || !isTimeValid}
-            >
-              Add Timer
-            </button>
+              className={`px-4 py-2 text-sm font-medium text-white  bg-blue-600 hover:bg-blue-700
+                 `}
+              // disabled={!isTitleValid || !isTimeValid}
+              text={timer? "Save Changes" : "Add Timer"}
+            />
           </div>
         </form>
       </div>
