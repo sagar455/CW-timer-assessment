@@ -62,6 +62,9 @@ export class TimerAudio {
   }
 
   stop(): void {
+    if (!this.oscillator && !this.gainNode) {
+      return;
+    }
     this.cleanup();
   }
 
