@@ -55,9 +55,8 @@ const timerSlice = createSlice({
           timer.isRunning = false;
 
           timerAudio.play().catch(console.error);
-          timerAudio.infinitePlay();
           toast.success(`Timer "${timer.title}" has ended!`, {
-            duration: 1000,
+            duration: 3000,
             action: {
               label: "Dismiss",
               onClick: () => timerAudio.stop(),
